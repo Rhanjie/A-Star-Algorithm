@@ -8,7 +8,7 @@ class Tile : public sf::Drawable {
 public:
     enum State {NotCollision, Collision};
 
-    Tile(sf::Texture& texture, sf::Vector2f position);
+    explicit Tile(sf::Texture& texture, sf::Vector2f position);
 
     void handleEvent(sf::Event& event);
     void update(sf::RenderWindow& window);
@@ -20,9 +20,10 @@ public:
 
 private:
     Node node;
-    State state = State::NotCollision;
     sf::Sprite sprite;
+    State state = State::NotCollision;
 
+    void updateColor();
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
