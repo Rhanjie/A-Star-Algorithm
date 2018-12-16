@@ -1,10 +1,11 @@
 #include "Tile.h"
 
-Tile::Tile(sf::Texture &texture, sf::Vector2f position)
+Tile::Tile(sf::Texture &texture, State state, sf::Vector2f position)
     : node(position) {
     sprite.setTexture(texture);
     sprite.setPosition(position);
 
+    this->setState(state);
     this->updateColor();
 }
 
@@ -33,5 +34,15 @@ void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 }
 
 void Tile::updateColor() {
+    switch(state) {
+        case State::NotCollision:
+            sprite.setColor(sf::Color::Green);
+            break;
+
+        case State::Collision:
+            sprite.setColor(sf::Color::Red);
+            break;
+    }
+
     //TODO: Implement
 }

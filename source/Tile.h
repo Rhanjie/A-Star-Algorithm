@@ -7,8 +7,9 @@
 class Tile : public sf::Drawable {
 public:
     enum State {NotCollision, Collision};
+    static const int WIDTH = 64, HEIGHT = 32;
 
-    explicit Tile(sf::Texture& texture, sf::Vector2f position);
+    explicit Tile(sf::Texture& texture, State state, sf::Vector2f position);
 
     void handleEvent(sf::Event& event);
     void update(sf::RenderWindow& window);
