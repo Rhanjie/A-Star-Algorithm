@@ -38,6 +38,14 @@ void Map::generate() {
     }
 }
 
+void Map::update(sf::RenderWindow &window) {
+    for(auto &row : tiles) {
+        for(auto &tile : row) {
+            tile->update(window);
+        }
+    }
+}
+
 sf::Vector2f Map::getIsoPosition(sf::Vector2i position) {
     return sf::Vector2f(
             (float)(position.x - position.y) * Tile::WIDTH  / 2,
@@ -50,6 +58,14 @@ sf::Vector2i Map::getTiledPosition(sf::Vector2f position) {
             (int)((position.x / (Tile::WIDTH  / 2.0) + (position.y / (Tile::HEIGHT / 2.0)) + 1) / 2),
             (int)((position.y / (Tile::HEIGHT / 2.0) - (position.x / (Tile::WIDTH  / 2.0)) + 1) / 2)
     );
+}
+
+sf::Vector2i Map::getMapSize() {
+    return sf::Vector2i((int)tiles[0].size(), (int)tiles.size());
+}
+
+Tile &Map::getTile(sf::Vector2i position) {
+    return *tiles[position.y][position.x];
 }
 
 void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {

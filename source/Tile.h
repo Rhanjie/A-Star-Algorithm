@@ -14,6 +14,7 @@ public:
     void handleEvent(sf::Event& event);
     void update(sf::RenderWindow& window);
 
+    void setNodeState(Node::State newState);
     void setState(State newState);
     State& getState();
 

@@ -4,13 +4,14 @@
 #include <math.h>
 
 #include "Map.h"
+#include "Pathfinder.h"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "A* algorithm");
     sf::View camera;
 
     Map map(sf::Vector2i(20, 20));
-    //PathFinder pathfinder(map);
+    Pathfinder pathfinder(map);
 
     sf::Event event = sf::Event();
     while (window.isOpen()) {
@@ -32,8 +33,8 @@ int main() {
             camera.move(-1, 0);
 
 
-        //map.update(window);
-        //pathfinder.update(window);
+        map.update(window);
+        pathfinder.update(window);
 
         window.clear(sf::Color(0, 150, 255));
 
