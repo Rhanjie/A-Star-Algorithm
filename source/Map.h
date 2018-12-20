@@ -12,9 +12,6 @@ public:
     void generate();
     void update(sf::RenderWindow& window);
 
-    sf::Vector2f getIsoPosition(sf::Vector2i position);
-    sf::Vector2i getTiledPosition(sf::Vector2f position);
-
     sf::Vector2i getMapSize();
     Tile& getTile(sf::Vector2i position);
 

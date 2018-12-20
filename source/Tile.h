@@ -14,16 +14,25 @@ public:
     void handleEvent(sf::Event& event);
     void update(sf::RenderWindow& window);
 
+    static sf::Vector2f toIsoPosition(sf::Vector2i position);
+    static sf::Vector2i toTiledPosition(sf::Vector2f position);
+
     void setNodeState(Node::State newState);
     void setState(State newState);
     State& getState();
+    Node* getNode();
 
-    Node& getNode();
+    void setParent(Tile* newParent);
+    Tile* getParent();
+
+    sf::Vector2f getPosition();
+    sf::Vector2i getTiledPosition();
 
 private:
     Node node;
     sf::Sprite sprite;
     State state = State::NotCollision;
+    Tile* parent = nullptr;
 
     void updateColor();
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

@@ -7,11 +7,16 @@
 #include "Pathfinder.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "A* algorithm");
+    srand(time(NULL));
+    sf::RenderWindow window(sf::VideoMode(1366, 768), "A* algorithm");
     sf::View camera;
+    camera.setSize(sf::Vector2f(window.getSize()));
 
-    Map map(sf::Vector2i(20, 20));
+    Map map(sf::Vector2i(30, 30));
     Pathfinder pathfinder(map);
+
+    pathfinder.setStart(map.getTile(sf::Vector2i(5, 5)));
+    pathfinder.setTarget(map.getTile(sf::Vector2i(20, 25)));
 
     sf::Event event = sf::Event();
     while (window.isOpen()) {

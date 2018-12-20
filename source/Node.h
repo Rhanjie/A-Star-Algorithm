@@ -6,15 +6,15 @@
 //TODO: Maybe put code below in the Tile class
 class Node {
 public:
-    enum State {Unknown, Start, Target, OpenList, ClosedList};
+    enum State {Unknown, Start, Target, OpenList, ClosedList, GoodPath};
 
     explicit Node(sf::Vector2f position);
 
     void handleEvent(sf::Event& event);
     void update(sf::RenderWindow& window);
 
-    void setParentNodePosition(sf::Vector2i newPosition);
-    sf::Vector2i getParentNodePosition();
+    void setParent(Node* newParent);
+    Node* getParent();
 
     void setState(State newState);
     State& getState();
@@ -34,7 +34,7 @@ public:
 
 private:
     sf::Vector2f position = sf::Vector2f(0, 0);
-    sf::Vector2i parentNodePosition = sf::Vector2i(-1, -1);
+    Node* parent = nullptr;
     State state = State::Unknown;
 
     int movementCost = 0;

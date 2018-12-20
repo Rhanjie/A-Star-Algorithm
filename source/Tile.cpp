@@ -17,6 +17,20 @@ void Tile::update(sf::RenderWindow &window) {
     node.update(window);
 }
 
+sf::Vector2f Tile::toIsoPosition(sf::Vector2i position) {
+    return sf::Vector2f(
+            (float)(position.x - position.y) * Tile::WIDTH  / 2,
+            (float)(position.x + position.y) * Tile::HEIGHT / 2
+    );
+}
+
+sf::Vector2i Tile::toTiledPosition(sf::Vector2f position) {
+    return sf::Vector2i(
+            (int)((position.x / (Tile::WIDTH  / 2.0) + (position.y / (Tile::HEIGHT / 2.0)) + 1) / 2),
+            (int)((position.y / (Tile::HEIGHT / 2.0) - (position.x / (Tile::WIDTH  / 2.0)) + 1) / 2)
+    );
+}
+
 void Tile::setNodeState(Node::State newState) {
     node.setState(newState);
 
@@ -33,8 +47,8 @@ Tile::State& Tile::getState() {
     return state;
 }
 
-Node &Tile::getNode() {
-    return node;
+Node* Tile::getNode() {
+    return &node;
 }
 
 void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
@@ -61,17 +75,36 @@ void Tile::updateColor() {
             sprite.setColor(sf::Color::Yellow);
             break;
 
+        case Node::GoodPath:
+            sprite.setColor(sf::Color::Black);
+            break;
+
         case Node::Start:
             sprite.setColor(sf::Color::Blue);
             break;
 
         case Node::Target:
-            sprite.setColor(sf::Color::Black);
+            sprite.setColor(sf::Color::Magenta);
             break;
 
         default:
             break;
     }
+}
 
-    //TODO: Implement
+sf::Vector2f Tile::getPosition() {
+    return sprite.getPosition();
+}
+
+sf::Vector2i Tile::getTiledPosition() {
+    return Tile::toTiledPosition(sprite.getPosition());
+}
+
+void Tile::setParent(Tile *newParent) {
+    parent = newParent;
+
+}
+
+Tile* Tile::getParent() {
+    return parent;
 }

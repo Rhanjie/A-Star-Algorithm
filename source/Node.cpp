@@ -12,12 +12,12 @@ void Node::update(sf::RenderWindow &window) {
     //TODO: Implement
 }
 
-void Node::setParentNodePosition(sf::Vector2i newPosition) {
-    parentNodePosition = newPosition;
+void Node::setParent(Node* newParent) {
+    parent = newParent;
 }
 
-sf::Vector2i Node::getParentNodePosition() {
-    return parentNodePosition;
+Node* Node::getParent() {
+    return parent;
 }
 
 void Node::setState(Node::State newState) {
@@ -57,5 +57,5 @@ void Node::resetState() {
 }
 
 void Node::resetParent() {
-    parentNodePosition = sf::Vector2i(-1, -1);
+    parent = nullptr;
 }

@@ -27,10 +27,10 @@ void Map::resize(sf::Vector2i mapSize) {
 void Map::generate() {
     for(auto y = 0; y < tiles.size(); y++) {
         for (auto x = 0; x < tiles[y].size(); x++) {
-            sf::Vector2f position = this->getIsoPosition(sf::Vector2i(x, y));
+            sf::Vector2f position = Tile::toIsoPosition(sf::Vector2i(x, y));
 
             //TODO: Improve map generator
-            if (rand()%100 < 80)
+            if (rand()%100 < 70)
                 tiles[y][x] = new Tile(*textures["grass"], Tile::NotCollision, position);
 
             else tiles[y][x] = new Tile(*textures["wall"], Tile::Collision, sf::Vector2f(position.x, position.y - 20));
@@ -44,20 +44,6 @@ void Map::update(sf::RenderWindow &window) {
             tile->update(window);
         }
     }
-}
-
-sf::Vector2f Map::getIsoPosition(sf::Vector2i position) {
-    return sf::Vector2f(
-            (float)(position.x - position.y) * Tile::WIDTH  / 2,
-            (float)(position.x + position.y) * Tile::HEIGHT / 2
-    );
-}
-
-sf::Vector2i Map::getTiledPosition(sf::Vector2f position) {
-    return sf::Vector2i(
-            (int)((position.x / (Tile::WIDTH  / 2.0) + (position.y / (Tile::HEIGHT / 2.0)) + 1) / 2),
-            (int)((position.y / (Tile::HEIGHT / 2.0) - (position.x / (Tile::WIDTH  / 2.0)) + 1) / 2)
-    );
 }
 
 sf::Vector2i Map::getMapSize() {
