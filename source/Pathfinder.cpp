@@ -7,13 +7,13 @@ Pathfinder::Pathfinder(Map &map) {
 void Pathfinder::update(sf::RenderWindow &window) {
     sf::Vector2i mapSize = map->getMapSize();
 
-    this->step();
-    /*for (int y = 0; y < mapSize.y; y++) {
-        for (int x = 0; x < mapSize.x; x++) {
-            Tile* tile = &map->getTile(sf::Vector2i(x, y));
 
-        }
-    }*/
+    if (clock.getElapsedTime() >= sf::seconds(0.1)) {
+        this->step();
+
+        clock.restart();
+    }
+
 }
 
 void Pathfinder::setStart(Tile& newStart) {
@@ -26,6 +26,10 @@ void Pathfinder::setTarget(Tile& newTarget) {
     target->setNodeState(Node::Target);
 }
 
+void Pathfinder::setRange(unsigned int range) {
+    maxCost = range;
+}
+
 void Pathfinder::clearStart() {
     start = nullptr;
 }
@@ -35,7 +39,7 @@ void Pathfinder::clearTarget() {
 }
 
 void Pathfinder::step() {
-    if (start == nullptr || target == nullptr || isFound)
+    if (start == nullptr || target == nullptr || status != Pathfinder::Working)
         return;
 
     if (openList.empty() && closedList.empty()) {
@@ -43,31 +47,40 @@ void Pathfinder::step() {
         return;
     }
 
-    if (!closedList.empty() && closedList.back() == target) {
-        //FOUND TARGET
+    if (!closedList.empty()) {
+        if (openList.empty() || countTotalCost(closedList.back()) >= maxCost) {
+            std::cout << "Nieznaleziono sciezki!\n";
 
-        start->setNodeState(Node::Start);
-        target->setNodeState(Node::Target);
-
-        this->clearStart();
-        this->clearTarget();
-
-        //DrawPath
-        Tile* tile = closedList.back();
-        Node* neighbor = tile->getNode()->getParent();
-
-        while(tile->getNode()->getParent() != nullptr) {
-
-            if (tile->getNode()->getState() != Node::Start &&
-                tile->getNode()->getState() != Node::Target)
-                tile->setNodeState(Node::GoodPath);
-
-            tile = tile->getParent();
+            status = Pathfinder::NoPath;
+            return;
         }
 
-        //...
-        isFound = true;
-        return;
+        if (!closedList.empty() && closedList.back() == target) {
+            //FOUND TARGET
+
+            start->setNodeState(Node::Start);
+            target->setNodeState(Node::Target);
+
+            this->clearStart();
+            this->clearTarget();
+
+            //DrawPath
+            Tile* tile = closedList.back();
+            Node* neighbor = tile->getNode()->getParent();
+
+            while(tile->getNode()->getParent() != nullptr) {
+
+                if (tile->getNode()->getState() != Node::Start &&
+                    tile->getNode()->getState() != Node::Target)
+                    tile->setNodeState(Node::GoodPath);
+
+                tile = tile->getParent();
+            }
+
+            //...
+            status = Pathfinder::FoundPath;
+            return;
+        }
     }
 
 
@@ -150,12 +163,8 @@ int Pathfinder::findLowestScoreIndex() {
     return index;
 }
 
-bool Pathfinder::pathFound() {
-    return isFound;
-}
-
-int Pathfinder::countCost(Tile *tile) {
-    return cost;
+Pathfinder::Status Pathfinder::getStatus() {
+    return status;
 }
 
 int Pathfinder::countHeuristic(Tile *tile) {

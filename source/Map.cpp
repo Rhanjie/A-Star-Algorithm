@@ -10,7 +10,6 @@ Map::Map(sf::Vector2i mapSize) {
     textures["wall"] = texture;
 
     this->resize(mapSize);
-    this->generate();
 }
 
 void Map::resize(sf::Vector2i mapSize) {
@@ -22,6 +21,8 @@ void Map::resize(sf::Vector2i mapSize) {
             tiles[y][x] = nullptr;
         }
     }
+    
+    this->generate();
 }
 
 void Map::generate() {

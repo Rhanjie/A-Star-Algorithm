@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 
-//TODO: Maybe put code below in the Tile class
 class Node {
 public:
     enum State {Unknown, Start, Target, OpenList, ClosedList, GoodPath};

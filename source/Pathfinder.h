@@ -10,39 +10,40 @@
 
 class Pathfinder {
 public:
+    enum Status {Working, FoundPath, NoPath};
+
     explicit Pathfinder(Map& map);
 
     void setStart(Tile &newStart);
     void setTarget(Tile &newTarget);
+    void setRange(unsigned int range);
     void update(sf::RenderWindow& window);
 
     void clearStart();
     void clearTarget();
 
-    bool pathFound();
+    Status getStatus();
 
 private:
     std::vector<Tile*> openList;
     std::vector<Tile*> closedList;
 
+    Status status = Status::Working;
+
     Map* map     = nullptr;
     Tile* start  = nullptr;
     Tile* target = nullptr;
+    sf::Clock clock;
 
     int cost = 10;
-    bool isFound = false;
+    int maxCost = 10000;
 
     void step();
     void exploreNeighbors(int index);
 
-    int countCost(Tile* tile);
     int countHeuristic(Tile* tile);
-
     int countTotalCost(Tile* tile);
-
     int findLowestScoreIndex();
-
-
 };
 
 #endif //ASTARALGORITHM_PATHFINDER_H
