@@ -56,8 +56,8 @@ Tile &Map::getTile(sf::Vector2i position) {
 }
 
 void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    for(auto &row : tiles) {
-        for(auto &tile : row) {
+    for (auto &row : tiles) {
+        for (auto &tile : row) {
             target.draw(*tile);
         }
     }

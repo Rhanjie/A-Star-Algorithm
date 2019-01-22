@@ -12,12 +12,14 @@ class Pathfinder {
 public:
     enum Status {Working, FoundPath, NoPath};
 
-    explicit Pathfinder(Map& map);
+    explicit Pathfinder(const std::string &id, Map& map);
 
     void setStart(Tile &newStart);
     void setTarget(Tile &newTarget);
     void setRange(unsigned int range);
     void update(sf::RenderWindow& window);
+
+    void drawFoundPath();
 
     void clearStart();
     void clearTarget();
@@ -27,6 +29,8 @@ public:
 private:
     std::vector<Tile*> openList;
     std::vector<Tile*> closedList;
+    //std::priority_queue<Tile*> openList;
+    //std::priority_queue<Tile*> closedList;
 
     Status status = Status::Working;
 
@@ -37,6 +41,7 @@ private:
 
     int cost = 10;
     int maxCost = 10000;
+    std::string id = "";
 
     void step();
     void exploreNeighbors(int index);

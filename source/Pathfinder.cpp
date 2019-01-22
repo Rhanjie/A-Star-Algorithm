@@ -1,6 +1,7 @@
 #include "Pathfinder.h"
 
-Pathfinder::Pathfinder(Map &map) {
+Pathfinder::Pathfinder(const std::string &id, Map &map) {
+    this->id = id;
     this->map = &map;
 }
 
@@ -8,22 +9,26 @@ void Pathfinder::update(sf::RenderWindow &window) {
     sf::Vector2i mapSize = map->getMapSize();
 
 
-    if (clock.getElapsedTime() >= sf::seconds(0.1)) {
+    //if (clock.getElapsedTime() >= sf::microseconds(5)) {
         this->step();
 
         clock.restart();
-    }
+    //}
 
 }
 
 void Pathfinder::setStart(Tile& newStart) {
     start = &newStart;
-    start->setNodeState(Node::Start);
+
+    start->addNewPathfind(id);
+    start->setNodeState(id, Node::Start);
 }
 
 void Pathfinder::setTarget(Tile& newTarget) {
     target = &newTarget;
-    target->setNodeState(Node::Target);
+
+    target->addNewPathfind(id);
+    target->setNodeState(id, Node::Target);
 }
 
 void Pathfinder::setRange(unsigned int range) {
@@ -49,36 +54,16 @@ void Pathfinder::step() {
 
     if (!closedList.empty()) {
         if (openList.empty() || countTotalCost(closedList.back()) >= maxCost) {
-            std::cout << "Nieznaleziono sciezki!\n";
-
             status = Pathfinder::NoPath;
             return;
         }
 
         if (!closedList.empty() && closedList.back() == target) {
             //FOUND TARGET
-
-            start->setNodeState(Node::Start);
-            target->setNodeState(Node::Target);
-
-            this->clearStart();
-            this->clearTarget();
-
-            //DrawPath
-            Tile* tile = closedList.back();
-            Node* neighbor = tile->getNode()->getParent();
-
-            while(tile->getNode()->getParent() != nullptr) {
-
-                if (tile->getNode()->getState() != Node::Start &&
-                    tile->getNode()->getState() != Node::Target)
-                    tile->setNodeState(Node::GoodPath);
-
-                tile = tile->getParent();
-            }
-
-            //...
             status = Pathfinder::FoundPath;
+            std::cout << "Uwaga! Sciezka o id " << id << " skonczyla prace!\n";
+
+            this->drawFoundPath();
             return;
         }
     }
@@ -90,13 +75,16 @@ void Pathfinder::step() {
 
         //...
     }
+
+    else status = Pathfinder::NoPath;
 }
 
 void Pathfinder::exploreNeighbors(int index) {
     Tile* tile = *(openList.begin() + index);
     openList.erase(openList.begin() + index);
     closedList.emplace_back(tile);
-    tile->setNodeState(Node::ClosedList);
+    tile->addNewPathfind(id);
+    tile->setNodeState(id, Node::ClosedList);
 
     sf::Vector2i position = tile->getTiledPosition();
     std::vector<sf::Vector2i> neighborPositions {
@@ -112,16 +100,17 @@ void Pathfinder::exploreNeighbors(int index) {
             neighborPosition.y >= 0 && neighborPosition.y < map->getMapSize().y) {
             Tile *neighbor = &map->getTile(neighborPosition);
 
-            if (neighbor->getState() != Tile::Collision) {
+            if (neighbor->getState() != Tile::Collision || neighbor == start || neighbor == target) {
                 if (std::find(closedList.begin(), closedList.end(), neighbor) == closedList.end()) {
                     if (std::find(openList.begin(), openList.end(), neighbor) == openList.end()) {
                         openList.push_back(neighbor);
-                        openList.back()->setNodeState(Node::OpenList);
+                        neighbor->addNewPathfind(id);
+                        openList.back()->setNodeState(id, Node::OpenList);
 
-                        openList.back()->getNode()->setMovementCost(cost);
-                        openList.back()->getNode()->setHeuristicCost(this->countHeuristic(openList.back()));
-                        openList.back()->getNode()->setParent(closedList.back()->getNode());
-                        openList.back()->setParent(closedList.back());
+                        openList.back()->getNode(id)->setMovementCost(cost);
+                        openList.back()->getNode(id)->setHeuristicCost(this->countHeuristic(openList.back()));
+                        openList.back()->getNode(id)->setParent(closedList.back()->getNode(id));
+                        openList.back()->setParent(id, closedList.back());
                     }
                 }
             }
@@ -135,19 +124,19 @@ int Pathfinder::countTotalCost(Tile* tile) {
     difference.y = abs(difference.y) * 10;
 
     int heuristic = difference.x + difference.y;
-    if (tile->getNode()->getParent() != nullptr)
-        tile->getNode()->setMovementCost(tile->getNode()->getParent()->getMovementCost() + cost);
-    else tile->getNode()->setMovementCost(cost);
+    if (tile->getNode(id)->getParent() != nullptr)
+        tile->getNode(id)->setMovementCost(tile->getNode(id)->getParent()->getMovementCost() + cost);
+    else tile->getNode(id)->setMovementCost(cost);
 
-    tile->getNode()->setHeuristicCost(heuristic);
+    tile->getNode(id)->setHeuristicCost(heuristic);
 
-    std::cout << difference.x << " (::) " << difference.y << std::endl;
-    std::cout << "Total cost: " << heuristic + tile->getNode()->getMovementCost() << std::endl;
-    return heuristic + tile->getNode()->getMovementCost();
+    //std::cout << difference.x << " (::) " << difference.y << std::endl;
+    //std::cout << "Total cost: " << heuristic + tile->getNode(id)->getMovementCost() << std::endl;
+    return heuristic + tile->getNode(id)->getMovementCost();
 }
 
 int Pathfinder::findLowestScoreIndex() {
-    int lowestF = 999999;
+    int lowestF = maxCost;
     int index = -1;
 
     for (int i = 0; i < openList.size(); i++) {
@@ -173,4 +162,28 @@ int Pathfinder::countHeuristic(Tile *tile) {
     difference.y = abs(difference.y) * 10;
 
     return difference.x + difference.y;
+}
+
+void Pathfinder::drawFoundPath() {
+    if (status == Pathfinder::FoundPath) {
+        if (start != nullptr && target != nullptr) {
+            start->setNodeState(id, Node::Start);
+            target->setNodeState(id, Node::Target);
+
+            //this->clearStart();
+            //this->clearTarget();
+        }
+
+        Tile *tile = closedList.back();
+        Node *neighbor = tile->getNode(id)->getParent();
+
+        while (tile->getNode(id)->getParent() != nullptr) {
+
+            if (tile->getNode(id)->getState() != Node::Start &&
+                tile->getNode(id)->getState() != Node::Target)
+                tile->setNodeState(id, Node::GoodPath);
+
+            tile = tile->getParent(id);
+        }
+    }
 }

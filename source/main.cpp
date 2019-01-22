@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <random>
 #include <math.h>
+#include "cstdlib"
 
 #include "Map.h"
 #include "Pathfinder.h"
@@ -17,10 +18,16 @@ int main() {
 
     Map map(sf::Vector2i(50, 50));
 
-    Pathfinder pathfinder(map);
-    pathfinder.setStart(map.getTile(sf::Vector2i(5, 5)));
-    pathfinder.setTarget(map.getTile(sf::Vector2i(40, 45)));
-    pathfinder.setRange(1000);
+    std::vector<Pathfinder>pathfinders;
+
+    const int pathfinderAmounts = 3;
+    for(int i = 0; i < pathfinderAmounts; i++) {
+        pathfinders.emplace_back("test" + std::to_string(i), map);
+
+        pathfinders.back().setStart (map.getTile(sf::Vector2i(rand() % 40, rand() % 40)));
+        pathfinders.back().setTarget(map.getTile(sf::Vector2i(rand() % 40, rand() % 40)));
+        pathfinders.back().setRange(1000);
+    }
 
     sf::Event event = sf::Event();
     while (window.isOpen()) {
@@ -43,18 +50,24 @@ int main() {
 
 
         map.update(window);
-        pathfinder.update(window);
 
-        switch(pathfinder.getStatus()) {
-            case Pathfinder::FoundPath:
-                std::cout << "Znaleziono sciezke!\n";
-                break;
+        for (int i = 0; i < pathfinders.size(); i++)
+            pathfinders[i].update(window);
 
-            case Pathfinder::NoPath:
-                std::cout << "Brak sciezki!! :(\n";
+        bool allDone = true;
+        for (int i = 0; i < pathfinders.size(); i++) {
+            if (pathfinders[i].getStatus() != Pathfinder::Working) {
+                //pathfinders.erase(pathfinders.begin() + i);
+                //i--;
 
-            default:
-                break;
+                allDone = false;
+            }
+        }
+
+        if (allDone) {
+            for (int i = 0; i < pathfinderAmounts; i++) {
+                pathfinders[i].drawFoundPath();
+            }
         }
 
         window.clear(sf::Color(0, 150, 255));
