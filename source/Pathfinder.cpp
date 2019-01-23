@@ -59,9 +59,8 @@ void Pathfinder::step() {
         }
 
         if (!closedList.empty() && closedList.back() == target) {
-            //FOUND TARGET
+            std::cout << "Another algorithm has finished work!\n";
             status = Pathfinder::FoundPath;
-            std::cout << "Uwaga! Sciezka o id " << id << " skonczyla prace!\n";
 
             this->drawFoundPath();
             return;

@@ -16,16 +16,19 @@ int main() {
     camera.setSize(sf::Vector2f(window.getSize()));
     camera.zoom(2);
 
-    Map map(sf::Vector2i(50, 50));
+    Map map(sf::Vector2i(70, 70));
 
     std::vector<Pathfinder>pathfinders;
 
-    const int pathfinderAmounts = 3;
-    for(int i = 0; i < pathfinderAmounts; i++) {
+    sf::Clock clock;
+    bool allDone = true;
+
+    const int pathfinderAmount = 30;
+    for(int i = 0; i < pathfinderAmount; i++) {
         pathfinders.emplace_back("test" + std::to_string(i), map);
 
-        pathfinders.back().setStart (map.getTile(sf::Vector2i(rand() % 40, rand() % 40)));
-        pathfinders.back().setTarget(map.getTile(sf::Vector2i(rand() % 40, rand() % 40)));
+        pathfinders.back().setStart (map.getTile(sf::Vector2i(rand() % 70, rand() % 70)));
+        pathfinders.back().setTarget(map.getTile(sf::Vector2i(rand() % 70, rand() % 70)));
         pathfinders.back().setRange(1000);
     }
 
@@ -37,37 +40,41 @@ int main() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            camera.move(0, -1);
+            camera.move(0, -5);
 
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            camera.move(0, 1);
+            camera.move(0, 5);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            camera.move(1, 0);
+            camera.move(5, 0);
 
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            camera.move(-1, 0);
+            camera.move(-5, 0);
 
 
         map.update(window);
 
-        for (int i = 0; i < pathfinders.size(); i++)
-            pathfinders[i].update(window);
+        for (auto &pathfinder : pathfinders)
+            pathfinder.update(window);
 
-        bool allDone = true;
+        allDone = true;
         for (int i = 0; i < pathfinders.size(); i++) {
-            if (pathfinders[i].getStatus() != Pathfinder::Working) {
-                //pathfinders.erase(pathfinders.begin() + i);
-                //i--;
+            /**if (pathfinders[i].getStatus() != Pathfinder::Working) {
+                pathfinders.erase(pathfinders.begin() + i);
+                i--;
+            }**/
 
+            if (pathfinders[i].getStatus() == Pathfinder::Working)
                 allDone = false;
-            }
         }
 
-        if (allDone) {
-            for (int i = 0; i < pathfinderAmounts; i++) {
-                pathfinders[i].drawFoundPath();
-            }
+        if (allDone && !pathfinders.empty()) {
+            std::cout << "Time: " << clock.restart().asSeconds() << std::endl;
+
+            for (auto &pathfinder : pathfinders)
+                pathfinder.drawFoundPath();
+
+            pathfinders.clear();
         }
 
         window.clear(sf::Color(0, 150, 255));

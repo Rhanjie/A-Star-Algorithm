@@ -74,6 +74,8 @@ void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 }
 
 void Tile::updateColor(const std::string &id) {
+    //return; //Only for performance test
+
     switch(state) {
         case State::NotCollision:
             sprite.setColor(sf::Color::Green);
@@ -84,6 +86,7 @@ void Tile::updateColor(const std::string &id) {
             break;
     }
 
+    //TODO: Better tile coloring
     sf::Color newColor = sprite.getColor();
     auto foundNode = nodes.find(id);
     if (!id.empty() && foundNode != nodes.end() && state == State::NotCollision && sprite.getColor() != sf::Color::Black) {
