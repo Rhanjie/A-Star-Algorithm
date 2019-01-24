@@ -6,15 +6,11 @@ Pathfinder::Pathfinder(const std::string &id, Map &map) {
 }
 
 void Pathfinder::update(sf::RenderWindow &window) {
-    sf::Vector2i mapSize = map->getMapSize();
-
-
-    //if (clock.getElapsedTime() >= sf::microseconds(5)) {
+    //if (clock.getElapsedTime() >= sf::seconds(0.5)) {
         this->step();
 
         clock.restart();
     //}
-
 }
 
 void Pathfinder::setStart(Tile& newStart) {
@@ -157,8 +153,8 @@ Pathfinder::Status Pathfinder::getStatus() {
 
 int Pathfinder::countHeuristic(Tile *tile) {
     sf::Vector2i difference = target->getTiledPosition() - tile->getTiledPosition();
-    difference.x = abs(difference.x) * 10;
-    difference.y = abs(difference.y) * 10;
+    difference.x = abs(difference.x) * cost;
+    difference.y = abs(difference.y) * cost;
 
     return difference.x + difference.y;
 }
@@ -168,16 +164,11 @@ void Pathfinder::drawFoundPath() {
         if (start != nullptr && target != nullptr) {
             start->setNodeState(id, Node::Start);
             target->setNodeState(id, Node::Target);
-
-            //this->clearStart();
-            //this->clearTarget();
         }
 
         Tile *tile = closedList.back();
-        Node *neighbor = tile->getNode(id)->getParent();
 
         while (tile->getNode(id)->getParent() != nullptr) {
-
             if (tile->getNode(id)->getState() != Node::Start &&
                 tile->getNode(id)->getState() != Node::Target)
                 tile->setNodeState(id, Node::GoodPath);
@@ -185,4 +176,38 @@ void Pathfinder::drawFoundPath() {
             tile = tile->getParent(id);
         }
     }
+}
+
+std::vector<Tile*> &Pathfinder::getFoundPath() {
+    path.clear();
+
+    if (status == Pathfinder::FoundPath) {
+        Tile *tile = closedList.back();
+
+        while (tile->getNode(id)->getParent() != nullptr) {
+            if (tile->getNode(id)->getState() != Node::Start &&
+                tile->getNode(id)->getState() != Node::Target)
+                path.emplace_back(tile);
+
+            tile = tile->getParent(id);
+        }
+
+        this->clearAll();
+    }
+
+    return path;
+}
+
+void Pathfinder::clearAll() {
+    this->clearStart();
+    this->clearTarget();
+
+    openList.clear();
+    closedList.clear();
+
+    status = Status::Working;
+}
+
+std::string Pathfinder::getId() {
+    return id;
 }

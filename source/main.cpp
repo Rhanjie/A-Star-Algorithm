@@ -21,15 +21,15 @@ int main() {
     std::vector<Pathfinder>pathfinders;
 
     sf::Clock clock;
-    bool allDone = true;
+    bool allDone;
 
-    const int pathfinderAmount = 30;
+    const int pathfinderAmount = 2;
     for(int i = 0; i < pathfinderAmount; i++) {
         pathfinders.emplace_back("test" + std::to_string(i), map);
 
         pathfinders.back().setStart (map.getTile(sf::Vector2i(rand() % 70, rand() % 70)));
         pathfinders.back().setTarget(map.getTile(sf::Vector2i(rand() % 70, rand() % 70)));
-        pathfinders.back().setRange(1000);
+        pathfinders.back().setRange(2000);
     }
 
     sf::Event event = sf::Event();
@@ -71,8 +71,17 @@ int main() {
         if (allDone && !pathfinders.empty()) {
             std::cout << "Time: " << clock.restart().asSeconds() << std::endl;
 
-            for (auto &pathfinder : pathfinders)
-                pathfinder.drawFoundPath();
+            /*for (auto &pathfinder : pathfinders)
+                pathfinder.drawFoundPath();*/
+
+            /** Testing getFoundPath() method **/
+            for (auto &pathfinder : pathfinders) {
+                std::vector<Tile*> path = pathfinder.getFoundPath();
+
+                for (auto &tile : path) {
+                    tile->setNodeState(pathfinder.getId(), Node::GoodPath);
+                }
+            }
 
             pathfinders.clear();
         }

@@ -20,17 +20,21 @@ public:
     void update(sf::RenderWindow& window);
 
     void drawFoundPath();
+    std::vector<Tile*>& getFoundPath();
 
+    void clearAll();
     void clearStart();
     void clearTarget();
 
     Status getStatus();
+    std::string getId();
 
 private:
     std::vector<Tile*> openList;
     std::vector<Tile*> closedList;
     //std::priority_queue<Tile*> openList;
     //std::priority_queue<Tile*> closedList;
+    std::vector<Tile*>path;
 
     Status status = Status::Working;
 
